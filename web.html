@@ -1,0 +1,380 @@
+<html>
+
+<body>
+
+<h1> Phone Usage Data </h1>
+
+</svg>
+<head>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+
+<script>
+let data = d3.csv("data.csv").then(function(data) {
+console.log(data);
+  //init(data);
+});
+</script>
+
+</body>
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<html id ="data"></html>
+
+
+
+<script>
+         
+// create the canvas and margins of the graph within the canvas
+var margin = {top: 40, right: 20, bottom: 120, left: 90},
+// create margins
+    width = 700 - margin.left - margin.right,
+    height = 800 - margin.top - margin.bottom;
+
+// load csv file data and attach it to the canvas space
+var svg = d3.select("#data")
+  .append("svg")
+  .attr("width", width + margin.left + margin.right,)
+  .attr("height", height + margin.top + margin.bottom)
+  //customize canvas background
+  .style("background-color", d3.color("aliceblue") )
+  .style("position","relative")
+  //add data points to the canvas
+  .append("g")
+  .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+  //call the data
+  d3.csv("data.csv", function(data) {
+
+  // make X axis scale
+  var x = d3.scaleLinear()
+    .domain([0, 15])
+    .range([ 0, width ]);
+  //group the data points to the x axis
+  //create x numbered scale
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+  // make Y axis scale
+  var y = d3.scaleLinear()
+    .domain([0, 100])
+    .range([ height, 0]);
+  //group the data points to the y axis
+  //create y numbered scale
+  svg.append("g")
+    .call(d3.axisLeft(y));
+
+  // Plot points onto the graph
+  svg.append("g")
+    //create blue dots
+    .attr("id", "blueDot")
+    .selectAll("point")
+    .data(data)
+    .enter()
+    .append("circle")
+    //assign a point for each data point under DAYS and TIMES
+    .attr("cx", function (d) { return x(d.DAYS); } )
+    .attr("cy", function (d) { return y(d.TIMES); } )
+    //set color and size of points
+    .attr("r", 6)
+    .style("fill", "skyblue")
+    //call mouse hover event for blue dots
+    .on("mouseover", MouseOn_blue)
+    .on("mouseout", MouseOff_blue);
+
+  svg.append("g")
+    //create orange dots
+    .attr("id", "ojDot")
+    .selectAll("point2")
+    .data(data)
+    .enter()
+    .append("circle")
+    //assign a point for each data point under DAYS and TIMES
+    .attr("cx", function (d) { return x(d.DAYS); } )
+    .attr("cy", function (d) { return y(d.TIMES2); } )
+    //set color and size of points
+    .attr("r", 6)
+    .style("fill", "lightsalmon")
+    //call mouse hover event for orange dots
+    .on("mouseover", MouseOn_oj)
+    .on("mouseout", MouseOff_oj);
+    
+  svg.append("g")
+    .attr("id", "greenDot")
+    .selectAll("point3")
+    .data(data)
+    .enter()
+    .append("circle")
+    //assign a point for each data point under DAYS and TIMES
+    .attr("cx", function (d) { return x(d.DAYS); } )
+    .attr("cy", function (d) { return y(d.TIMES3); } )
+    //set color and size of points
+    .attr("r", 6)
+    .style("fill", "lightgreen")
+    //call mouse hover event for green dots
+    .on("mouseover", MouseOn_grn)
+    .on("mouseout", MouseOff_grn);
+
+//Create the interactive legened 
+
+  svg.append("text")
+    //set position, color, size, and font of label
+	  .attr("x", 450)             
+	  .attr("y", 90)    
+	  .attr("class", "legend")
+    .style("fill", "skyblue")
+    .style("font-size", 20)
+    .style("font-family", "fantasy") 
+    //makes points visible/invisible upon click event          
+	  .on("click", function(){
+		// check if blue points are visible
+		var active   = blueDot.active ? false : true,
+		  newOpacity = active ? 0 : 1;
+		// determines wether to make point visibile or invisible
+		d3.select("#blueDot").style("opacity", newOpacity);
+		// Update the elements when active/inactive
+		blueDot.active = active;
+  })
+   //append on click event to text label
+	  .text("User X");
+
+
+  svg.append("text")
+    //set position, color, size, and font of label
+	  .attr("x", 450)             
+	  .attr("y", 110)    
+	  .attr("class", "legend")
+    .style("fill", "lightsalmon")
+    .style("font-size", 20)   
+    .style("font-family", "fantasy")
+    //makes points visible/invisible upon click event      
+	  .on("click", function(){
+    // check if orange points are visible
+		var active   = ojDot.active ? false : true ,
+		  newOpacity = active ? 0 : 1;
+		// determines wether to make point visibile or invisible
+		d3.select("#ojDot").style("opacity", newOpacity);
+		// Update the elements when active/inactive
+		ojDot.active = active;
+  })
+  //append on click event to text label
+    .text("User Y");
+
+  svg.append("text")
+  //set position, color, size, and font of label
+	  .attr("x", 450)             
+	  .attr("y", 130)    
+	  .attr("class", "legend")
+    .style("fill", "lightgreen")
+    .style("font-size", 20)   
+    .style("font-family", "fantasy")
+    //makes points visible/invisible upon click event       
+	  .on("click", function(){
+    //check if green points are visible
+		var active   = greenDot.active ? false : true ,
+		  newOpacity = active ? 0 : 1;
+		// determines wether to make point visibile or invisible
+		d3.select("#greenDot").style("opacity", newOpacity);
+		// Update the elements when active/inactive
+		greenDot.active = active;
+  })
+  //append on click event to text label
+    .text("User Z");
+
+// Create images on top of graph to create a phone container
+
+  //create blue circle for legend
+  svg.append("circle")
+    .attr("cx",440)
+    .attr("cy",85)
+    .attr("r", 6)
+    .style("fill", "skyblue")
+
+  //create orange circle for legend
+  svg.append("circle")
+    .attr("cx",440)
+    .attr("cy",105)
+    .attr("r", 6)
+    .style("fill", "lightsalmon")
+
+  //create green circle for legend
+  svg.append("circle")  
+    .attr("cx",440)
+    .attr("cy",125)
+    .attr("r", 6)
+    .style("fill", "lightgreen")
+
+//create black rectangles for the phone frame around the graph
+//right rect
+  svg.append("rect")
+    .attr("x", 570)
+    .attr("y", 0-margin.top)
+    .attr("width", 50)
+    .attr("height", 900)
+    .style("fill","black")
+//left rect
+  svg.append("rect")
+    .attr("x", 0 - margin.left)
+    .attr("y", 0-margin.top)
+    .attr("width", 800)
+    .attr("height", 35)
+    .style("fill","black")
+//bottom rect
+  svg.append("rect")
+    .attr("x", 0 - margin.left)
+    .attr("y", 820-margin.bottom)
+    .attr("width", 800)
+    .attr("height", 85)
+    .style("fill","black")
+//top rect
+  svg.append("rect")
+    .attr("x", 0 - margin.left)
+    .attr("y", 0-margin.top)
+    .attr("width", 20)
+    .attr("height", 900)
+    .style("fill","black")
+
+  // center button for phone (cosmetic)
+  svg.append("circle")
+    .attr("cx",280)
+    .attr("cy",850-margin.bottom)
+    .attr("r", 20).style("fill", "ivory")
+    .style("stroke","paleturquoise")
+    .style("stroke-width", 5)
+
+//black screen overlay that fades when clicked
+  svg.append("rect")
+    .attr("x",0-margin.left)
+    .attr("y",0-margin.top)
+    .attr("width", 800)
+    .attr("height",745)
+    .style("fill","black")
+    //Call mouse event for black screen
+    .on("click", clicked_screen);
+    
+//blue dot transition when on hover
+  function MouseOn_blue(d,i) {
+    d3.select(this).transition()
+    //makes blue dots bigger
+      .duration(300)
+      .attr("r",20)
+      .attr("stroke", none)
+      
+  }
+//blue dot transition when off hover
+  function MouseOff_blue(d,i) {
+    d3.select(this).transition()
+    //makes blue dots small
+      .duration(3000)
+      .delay(3000)
+      .attr("r",6)
+      .attr("stroke", none)
+  }
+  
+//orange dot transition when on hover
+  function MouseOn_oj(d,i) {
+    d3.select(this).transition()
+    //makes orange dots bigger
+      .duration(300)
+      .attr("r",20)
+      .attr("stroke", none)
+      .append
+  }
+
+//orange dot transition when off hover
+  function MouseOff_oj(d,i) {
+    d3.select(this).transition()
+    //makes orange dots small
+      .duration(3000)
+      .delay(3000)
+      .attr("r",6)
+      .attr("stroke", none)
+  }
+
+//green dot transition when on hover
+  function MouseOn_grn(d,i) {
+    d3.select(this).transition()
+    //makes green dots bigger
+      .duration(300)
+      .attr("r",20)
+      .attr("stroke", none)
+      .append
+  }
+
+  //green dot transition when off hover
+  function MouseOff_grn(d,i) {
+    d3.select(this).transition()
+    //makes green dots small
+      .duration(3000)
+      .delay(3000)
+      .attr("r",6)
+      .attr("stroke", none)
+  }
+  
+    
+  //y axis label
+  svg.append("text")
+  //rotate the text
+    .attr("transform", "rotate(-90)")
+  //make room between the graph and canvas
+    .attr("y", 30 - margin.left)
+    .attr("x",0 - (height / 2))
+    // set pixle size, type, alignment 
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .style("font-family", "fantasy") 
+    .text("Times Phone Is Used");
+    
+  //x axis label
+  svg.append("text")    
+  //poistion the x axis label         
+    .attr("transform","translate(" + (width/2) + " ," + (height + 40) + ")")
+    //set font and position
+    .style("text-anchor", "middle")
+    .style("font-family", "fantasy") 
+    .text("Days");
+  //create user instruction text
+  svg.append("text")
+    .attr("x", 30)
+    .attr("y", 30)
+    .style("font-family", "fantasy")
+    .text("Click on the users to isolate the data")
+  
+//create an event for the black screen to fade upon click
+  function clicked_screen(d,i){
+    d3.select(this).transition()
+      .duration(3000)
+      .delay(30)
+      .style("fill-opacity", "0")
+      //deletes screen so all functions underneath still works
+      .remove()
+  }
+})
+</script>
+
+<script>
+  //draw phone graphic at the top of the screen using svg shapes
+</script>
+
+<svg width= "500" height = "500">
+  <rect x = "25" y = "125" width = "250" height = "300" fill = "ivory" stroke = "black" stroke-width = "20" transform = "rotate(-32 100 100)"/>
+  <polyline points="270 320 275 330 280 325 285 340 290 335 295 350 300 345 305 360 310 355" stroke="orange" fill="transparent" stroke-width="8", transform = "rotate(-45 100 100)"/>
+  <polyline points="270 270 275 280 280 275 285 290 290 285 295 300 300 295 305 310 310 305" stroke="orange" fill="transparent" stroke-width="8", transform = "rotate(-50 100 100)"/>
+  <polyline points="270 370 275 380 280 375 285 390 290 385 295 400 300 395 305 410 310 405" stroke="orange" fill="transparent" stroke-width="8", transform = "rotate(-40 100 100)"/>
+  <rect x ="90" y = "200" width = "120" height = "100" fill = "skyblue" stroke ="skyblue" stroke-width = "5" transform = "rotate(-32 100 100)"/>
+  <rect x = "130" y = "250" width = "30" height = "100" fill = "lightsalmon" stroke = "lightsalmon" stroke-width = "20" transform = "rotate(-32 100 100)"/>
+  <circle cx ="200" cy = "160" r = "55" fill = "skyblue" stroke ="skyblue" stroke-width = "20"/>
+  <circle cx ="210" cy = "180" r = "50" fill = "lightsalmon" stroke ="lightsalmon" stroke-width = "5"/>
+  <circle cx ="200" cy = "130" r = "35" fill = "skyblue" stroke ="skyblue" stroke-width = "10"/>
+  <circle cx ="180" cy = "190" r = "5" fill = "black" stroke ="black" stroke-width = "5"/>
+  <circle cx ="220" cy = "180" r = "5" fill = "black" stroke ="black" stroke-width = "5"/>
+  <circle cx ="200" cy = "215" r = "3" fill = "black" stroke ="black" stroke-width = "5"/>
+  <rect x = "25" y = "305" width = "250" height = "100" fill = "mediumslateblue" stroke = "black" stroke-width = "10" transform = "rotate(-32 100 100)"/>
+  <circle cx ="260" cy = "260" r = "35" fill = "lightsalmon" stroke ="lightsalmon" stroke-width = "5"/>
+  <circle cx ="310" cy = "345" r = "10" fill = "black" stroke ="white" stroke-width = "5"/>
+</svg>
+
+<h2>
+  Click on the Phone Screen below to begin!
+</h2>
